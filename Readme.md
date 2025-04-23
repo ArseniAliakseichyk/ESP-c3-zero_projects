@@ -2,26 +2,28 @@
 
 This repository is a collection of small test projects created while learning and experimenting with the ESP-C3 microcontroller.
 
-> ⚠️ This is not a structured production project.  
-> The purpose of this repo is to store and share personal learning examples.
+> ⚠️ This is not a structured or production-grade project.  
+> 📌 The repository is intended to document learning progress, test ideas, and experiment with ESP-IDF and related hardware.
 
 ---
 
 ## 📂 Project List
 
 ### 🔸 `eps-joy-point-Led8x8`
-Test project for an 8x8 LED matrix.  
-Includes a basic LED display using GPIO.
+This project demonstrates controlling an 8x8 LED matrix with a joystick.  
+The joystick controls a single point on the LED matrix, displaying its position as the user moves the joystick.
 
 ---
 
 ### 🔸 `eps-joy-ST7735S-bus-point-draw`
-Project to test point-drawing on an ST7735 display over SPI.
+A project to display text and graphical representation of joystick coordinates (`x`, `y`) on an ST7735 display.  
+It uses SPI to send a single pixel at a time to the display.
 
 ---
 
 ### 🔸 `eps-joy-ST7735S-one-point-draw`
-Another experiment with the ST7735S display using direct GPIO logic.
+Similar to the previous project, but this time using SPI bus communication, where multiple pixels are sent in one package.  
+This allows for more efficient display updates compared to sending individual pixels.
 
 ---
 
@@ -29,13 +31,13 @@ Another experiment with the ST7735S display using direct GPIO logic.
 
 - ESP-IDF / CMake  
 - C / Python  
-- ST7735 / LED Matrix  
+- ST7735S Display / 8x8 LED Matrix  
 - Serial monitor, simple GPIO testing  
 
 ---
 
 ## 📎 Notes
 
-- All projects are isolated in folders with basic structure.  
-- Each one focuses on a small task or concept.  
-- Projects may not be optimized or complete — intended for experimentation only.
+- All projects are organized in separate folders with basic structure.  
+- Each project focuses on a specific task or concept.  
+- These projects may not be fully optimized or complete — they are intended for experimentation and learning only.
