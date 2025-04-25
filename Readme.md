@@ -9,6 +9,12 @@ This repository is a collection of small test projects created while learning an
 
 ## 📂 Project List
 
+### 🔸 `esp-bluetooth`
+Initial test of Bluetooth functionality on the ESP-C3.  
+This project serves as a starting point for experimenting with Bluetooth communication.  
+
+---
+
 ### 🔸 `eps-joy-point-Led8x8`
 This project demonstrates controlling an 8x8 LED matrix with a joystick.  
 The joystick controls a single point on the LED matrix, displaying its position as the user moves the joystick.
