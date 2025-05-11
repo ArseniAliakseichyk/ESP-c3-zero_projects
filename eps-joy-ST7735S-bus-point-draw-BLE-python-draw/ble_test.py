@@ -1,6 +1,7 @@
 import asyncio
 from bleak import BleakClient, BleakScanner
 import curses
+import time
 
 JOYSTICK_BOX_HEIGHT = 19
 JOYSTICK_BOX_WIDTH = JOYSTICK_BOX_HEIGHT * 2
@@ -30,6 +31,7 @@ class JoystickDisplay:
         curses.init_pair(4, COLOR_SW_OFF, curses.COLOR_BLACK)
 
     def draw_static_elements(self):
+        self.stdscr.clear()
         self.stdscr.border()
         self.left_win.border()
         self.right_win.border()
@@ -64,7 +66,7 @@ class JoystickDisplay:
 
         self.left_win.addstr(2, 6, f"{data['x1']:4d}")
         self.left_win.addstr(3, 6, f"{data['y1']:4d}")
-        self.left_win.addstr(4, 6, " - " if data['sw1'] else " + ")
+        self.left_win.addstr(4, 6, " + " if data['sw1'] else " - ")
 
         self.right_win.addstr(2, 6, f"{data['x2']:4d}")
         self.right_win.addstr(3, 6, f"{data['y2']:4d}")
@@ -79,7 +81,6 @@ class JoystickDisplay:
         x_range = JOYSTICK_BOX_WIDTH - 2
         y_range = JOYSTICK_BOX_HEIGHT
 
-        # Инвертируем X и добавляем симметричные отступы
         x = 1 + (x_range - 2 - int((x_val / 4095) * (x_range - 2)))
         y = min(y_range - 1, int((y_val / 4095) * (y_range - 1)))
 
@@ -97,16 +98,36 @@ class JoystickDisplay:
 
 class BLEJoystickReader:
     def __init__(self, stdscr):
-        self.display = JoystickDisplay(stdscr)
+        self.stdscr = stdscr
+        self.display = None
         self.client = None
         self.device_name = "BLE-Arseni"
 
-    async def connect(self):
-        device = await BleakScanner.find_device_by_name(self.device_name)
-        if device:
-            self.client = BleakClient(device.address)
-            await self.client.connect()
-            return True
+    async def connect_with_animation(self):
+        max_wait = 30
+        start_time = time.time()
+        dot_index = 0
+        dots = ["   ", ".  ", ".. ", "..."]
+
+        while time.time() - start_time < max_wait:
+            self.stdscr.clear()
+            self.stdscr.border()
+            self.stdscr.addstr(5, 10, f"Searching for device {self.device_name}{dots[dot_index % 4]}")
+            self.stdscr.refresh()
+            dot_index += 1
+
+            device = await BleakScanner.find_device_by_name(self.device_name, timeout=1.0)
+            if device:
+                self.client = BleakClient(device.address)
+                await self.client.connect()
+                return True
+            await asyncio.sleep(0.3)
+
+        self.stdscr.clear()
+        self.stdscr.addstr(7, 10, f"Device {self.device_name} not found.")
+        self.stdscr.addstr(8, 10, "Press any key to exit.")
+        self.stdscr.refresh()
+        self.stdscr.getch()
         return False
 
     async def read_data(self):
@@ -119,12 +140,13 @@ class BLEJoystickReader:
         }
 
     async def run(self):
-        if await self.connect():
+        if await self.connect_with_animation():
+            self.display = JoystickDisplay(self.stdscr)
             try:
                 while True:
                     data = await self.read_data()
                     self.display.update_data(data)
-                    await asyncio.sleep(0.02)
+                    await asyncio.sleep(0.015)
             finally:
                 await self.client.disconnect()
 

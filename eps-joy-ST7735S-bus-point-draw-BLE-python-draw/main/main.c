@@ -72,7 +72,6 @@ const uint8_t font8x8_basic[128][8] = {
     ['S'] = {0b00111100, 0b01000010, 0b10000000, 0b01111100, 0b00000010, 0b10000010, 0b01111100, 0b00000000}
 };
 
-// LCD UTILS
 void lcd_send_cmd(uint8_t cmd) {
     gpio_set_level(PIN_NUM_DC, 0);
     spi_transaction_t t = {
@@ -127,7 +126,7 @@ void lcd_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
 void lcd_clear_screen(uint16_t color) {
     lcd_set_window(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
     gpio_set_level(PIN_NUM_DC, 1);
-    uint8_t line[LCD_WIDTH * 2];  // Removed the duplicate 'line' keyword
+    uint8_t line[LCD_WIDTH * 2];
     for (int i = 0; i < LCD_WIDTH; i++) {
         line[i * 2] = color >> 8;
         line[i * 2 + 1] = color & 0xFF;
@@ -156,7 +155,7 @@ void lcd_init() {
     spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
 
     spi_device_interface_config_t devcfg = {
-        .clock_speed_hz = 15 * 1000 * 1000, // Увеличено до 15 МГц
+        .clock_speed_hz = 15 * 1000 * 1000, // Up to 15 МГц
         .mode = 0,
         .spics_io_num = PIN_NUM_CS,
         .queue_size = 1,
@@ -170,7 +169,6 @@ void lcd_init() {
     lcd_send_cmd(0x29); // Display ON
 }
 
-// Оптимизированные функции
 void lcd_draw_char_fast(uint8_t ch, int x, int y, uint16_t fg_color, uint16_t bg_color) {
     if (x >= LCD_WIDTH || y >= LCD_HEIGHT) return;
     if (x + 7 >= LCD_WIDTH || y + 7 >= LCD_HEIGHT) return;
@@ -277,7 +275,6 @@ void lcd_draw_point_in_square(int x, int y, uint16_t color) {
     lcd_draw_2x2(x, y, color);
 }
 
-// Функции обновления позиций точек
 int point_x = 2200;
 int point_y = 2200;
 int point2_x = 2200;
@@ -313,7 +310,7 @@ void update_point2_position_with_inversion(int joystick_x, int joystick_y, int s
     if (point2_y >= LCD_HEIGHT) point2_y = LCD_HEIGHT - 1;
 }
 
-// GATT доступ — возвращаем текущее значение X1 X2 Y1 Y2 SW
+// GATT
 static int gatt_svr_access_cb(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg) {
     char joystick_data[32];
     snprintf(joystick_data, sizeof(joystick_data), "%d,%d,%d,%d,%d", last_x1, last_y1, last_x2, last_y2, last_sw1);
@@ -323,7 +320,7 @@ static int gatt_svr_access_cb(uint16_t conn_handle, uint16_t attr_handle, struct
     return 0;
 }
 
-// GATT сервисы (устройство → обратный отсчет)
+// GATT
 static const struct ble_gatt_svc_def gatt_svcs[] = {
     {
         .type = BLE_GATT_SVC_TYPE_PRIMARY,
@@ -331,7 +328,7 @@ static const struct ble_gatt_svc_def gatt_svcs[] = {
         .characteristics = (struct ble_gatt_chr_def[]) {
             {
                 .uuid = BLE_UUID16_DECLARE(0x2A29),  // Manufacturer Name
-                .access_cb = gatt_svr_access_cb,  // Callback для чтения
+                .access_cb = gatt_svr_access_cb,  // Callback
                 .flags = BLE_GATT_CHR_F_READ,
             },
             { 0 }
@@ -340,7 +337,7 @@ static const struct ble_gatt_svc_def gatt_svcs[] = {
     { 0 }
 };
 
-// Обработка GAP-событий
+// GAP-event
 static int ble_gap_event_cb(struct ble_gap_event *event, void *arg) {
     switch (event->type) {
         case BLE_GAP_EVENT_CONNECT:
@@ -348,7 +345,7 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg) {
                 ESP_LOGI(TAG, "✅ Connected: handle=%d", event->connect.conn_handle);
             } else {
                 ESP_LOGE(TAG, "❌ Connection failed, status=%d", event->connect.status);
-                ble_app_advertise();  // Рестарт рекламы
+                ble_app_advertise();  // restart
             }
             return 0;
 
@@ -368,7 +365,7 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg) {
     }
 }
 
-// Запуск BLE рекламы
+// Start BLE
 static void ble_app_advertise(void) {
     struct ble_gap_adv_params adv_params = {0};
     struct ble_hs_adv_fields fields = {0};
@@ -393,7 +390,7 @@ static void ble_app_advertise(void) {
     }
 }
 
-// Callback после синхронизации BLE стека
+// Callback afte BLE
 static void ble_app_on_sync(void) {
     ble_hs_id_infer_auto(0, &ble_addr_type);
     ESP_LOGI(TAG, "BLE host synchronized, address type: %d", ble_addr_type);
@@ -406,7 +403,7 @@ static void host_task(void *param) {
     nimble_port_freertos_deinit();
 }
 
-// Основной запуск
+// main
 
 void app_main() {
     lcd_init();
