@@ -33,6 +33,16 @@ This allows for more efficient display updates compared to sending individual pi
 
 ---
 
+### 🔸 `eps-joy-ST7735S-bus-point-draw-BLE-python-draw`
+Extension of previous project with BLE data transmission and Python visualization.  
+- Data from two joysticks (X, Y, button) transmitted via BLE to a PC  
+- Python script (using `bleak` and `curses`) displays real-time joystick positions in terminal  
+- Simultaneous output on ST7735 display via optimized SPI interface  
+- Bidirectional synchronization: control points on both display and terminal UI  
+
+---
+
+
 ## 🧰 Tools Used
 
 - ESP-IDF / CMake  

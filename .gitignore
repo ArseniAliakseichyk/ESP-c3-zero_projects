@@ -10,7 +10,6 @@ build/
 .vscode/
 .cargo/
 *.tmp
-sdkconfig*
 sdkconfig.old
 *.bin
 *.elf
