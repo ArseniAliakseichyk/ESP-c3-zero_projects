@@ -1,16 +1,21 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdint.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
+
 #include "nimble/ble.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/ble_hs.h"
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
+
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
-#include <string.h>
 #include "driver/adc.h"
 
 #define TAG "BLE_SIMPLE"
