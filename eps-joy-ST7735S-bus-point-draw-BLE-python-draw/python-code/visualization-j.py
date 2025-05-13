@@ -1,3 +1,5 @@
+# | pip install -r requirements.txt | 
+
 import asyncio
 from bleak import BleakClient, BleakScanner
 import curses
